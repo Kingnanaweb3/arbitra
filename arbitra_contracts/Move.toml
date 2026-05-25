@@ -1,0 +1,17 @@
+[package]
+name = "aegis_contracts"
+edition = "2024"
+authors = ["Kingnana"]
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/testnet" }
+
+[addresses]
+aegis_contracts = "0x8d2d740caccc02db4643f6ebccada30e0b029fb6274fdb9ffed04fed3ad3e53c"
+
+[lint]
+[lint.allow]
+duplicate_alias = true
+unused_const = true
+unused_field = true
+unused_variable = true

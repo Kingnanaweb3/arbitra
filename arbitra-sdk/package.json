@@ -1,0 +1,30 @@
+{
+  "name": "@arbitra/sdk",
+  "version": "1.0.0",
+  "description": "The policy enforcement SDK for AI agents on Sui",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "test": "tsx src/tests/index.ts",
+    "demo": "tsx src/demo/run.ts"
+  },
+  "keywords": [
+    "sui",
+    "ai",
+    "agents",
+    "policy",
+    "enforcement",
+    "arbitra"
+  ],
+  "author": "Kingnana",
+  "license": "MIT",
+  "dependencies": {
+    "@mysten/sui": "^2.5.0",
+    "@types/node": "latest",
+    "tsx": "latest",
+    "typescript": "latest"
+  }
+}
