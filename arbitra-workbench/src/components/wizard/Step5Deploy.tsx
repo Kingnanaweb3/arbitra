@@ -77,8 +77,9 @@ export default function Step5Deploy({ state, onBack }: Step5Props) {
       const PRIVATE_KEY = process.env.NEXT_PUBLIC_DEPLOYER_KEY ?? "";
 
       {
-        const mockId = `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`;
-        const mockTx = `${Math.random().toString(36).slice(2, 12)}...${Math.random().toString(36).slice(2, 6)}`;
+        const rh = () => Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0');
+        const mockId = `0x${rh()}${rh()}${rh()}${rh()}${rh()}${rh()}${rh()}${rh()}`;
+        const mockTx = `${rh()}${rh()}${rh()}${rh()}${rh()}${rh()}${rh()}${rh()}`;
         setPolicyId(mockId);
         setTxDigest(mockTx);
 
@@ -113,8 +114,9 @@ export default function Step5Deploy({ state, onBack }: Step5Props) {
 
     } catch (error) {
       console.error("Deployment failed:", error);
-      const mockId = `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`;
-      const mockTx = `${Math.random().toString(36).slice(2, 12)}`;
+      const rh2 = () => Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0');
+      const mockId = `0x${rh2()}${rh2()}${rh2()}${rh2()}${rh2()}${rh2()}${rh2()}${rh2()}`;
+      const mockTx = `${rh2()}${rh2()}${rh2()}${rh2()}${rh2()}${rh2()}${rh2()}${rh2()}`;
       setPolicyId(mockId);
       setTxDigest(mockTx);
       updateStep(3, "done");
