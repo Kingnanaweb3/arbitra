@@ -139,6 +139,8 @@ async function executeCycle() {
       slippageBps: decision.slippageBps,
       price: decision.price,
       reason: decision.reason,
+      policyId: process.env.POLICY_ID ?? "",
+      scope: "deepbook",
       timestamp: Date.now(),
     }, {
       headers: { "Content-Type": "application/json" },
