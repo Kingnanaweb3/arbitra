@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     const tx = new TransactionBlock();
 
-    tx.moveCall({
+    const [policyCap] = tx.moveCall({
       target: `${PACKAGE_ID}::policy_object::create_policy`,
       arguments: [
         tx.pure(agentNameBytes, "vector<u8>"),
@@ -66,6 +66,9 @@ export async function POST(req: NextRequest) {
         tx.object(CLOCK_ID),
       ],
     });
+
+    // Transfer the PolicyCap to the owner
+    tx.transferObjects([policyCap], tx.pure(ownerAddress, "address"));
 
     const result = await suiClient.signAndExecuteTransactionBlock({
       transactionBlock: tx,
