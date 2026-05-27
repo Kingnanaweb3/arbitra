@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { SuiClient, getFullnodeUrl } from "@mysten/sui.js/client";
+import { Ed25519Keypair } from "@mysten/sui.js/keypairs/ed25519";
+import { TransactionBlock } from "@mysten/sui.js/transactions";
+import { fromB64 } from "@mysten/sui.js/utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,38 +27,32 @@ export async function POST(req: NextRequest) {
     if (!PRIVATE_KEY) {
       console.error("[Deploy API] No private key configured");
       return NextResponse.json(
-        { success: false, error: "Deployer key not configured. Contact admin." },
+        { success: false, error: "Deployer key not configured." },
         { status: 500 }
       );
     }
 
-    // Real deployment using SDK
-    const { SuiClient, getFullnodeUrl } = await import("@mysten/sui/client");
-    const { Ed25519Keypair } = await import("@mysten/sui/keypairs/ed25519");
-    const { Transaction } = await import("@mysten/sui/transactions");
-
     const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
     const keypair = Ed25519Keypair.fromSecretKey(fromB64(PRIVATE_KEY));
-
-    const expiryMs = expiry === "0" ? 99999999999 : Number(expiry) * 3600000;
-    const expiryTimestamp = Date.now() + expiryMs;
+    const expiryTimestamp = Date.now() + (expiry === "0" ? 99999999999 : Number(expiry) * 3600000);
+    const ownerAddress = keypair.getPublicKey().toSuiAddress();
 
     const tx = new TransactionBlock();
 
     tx.moveCall({
       target: `${PACKAGE_ID}::policy_object::create_policy`,
       arguments: [
-        tx.pure.string(agentName),
-        tx.pure.string(agentType),
-        tx.pure.u64(budget * 1000000),
-        tx.pure.string(token),
-        tx.pure.string(scope),
-        tx.pure.u64(expiryTimestamp),
-        tx.pure.u64(riskCeiling),
-        tx.pure.u64(slippageGuardBps),
-        tx.pure.u64(maxSingleTx * 1000000),
-        tx.pure.address(beneficiary || keypair.getPublicKey().toSuiAddress()),
-        tx.pure.address(daoOverride || keypair.getPublicKey().toSuiAddress()),
+        tx.pure(agentName, "string"),
+        tx.pure(agentType, "string"),
+        tx.pure(Math.round(budget * 1000000), "u64"),
+        tx.pure(token, "string"),
+        tx.pure(scope, "string"),
+        tx.pure(expiryTimestamp, "u64"),
+        tx.pure(riskCeiling, "u64"),
+        tx.pure(slippageGuardBps, "u64"),
+        tx.pure(Math.round(maxSingleTx * 1000000), "u64"),
+        tx.pure(beneficiary || ownerAddress, "address"),
+        tx.pure(daoOverride || ownerAddress, "address"),
       ],
     });
 
@@ -68,13 +66,13 @@ export async function POST(req: NextRequest) {
     });
 
     const policyObject = result.objectChanges?.find(
-      (o) => o.type === "created" && (o as any).objectType?.includes("PolicyObject")
+      (o: any) => o.type === "created" && o.objectType?.includes("PolicyObject")
     );
 
     const policyId = (policyObject as any)?.objectId ?? result.digest;
     const txDigest = result.digest;
 
-    console.log(`[Deploy API] Real deployment successful — policyId: ${policyId}`);
+    console.log(`[Deploy API] Real deployment — policyId: ${policyId} | tx: ${txDigest}`);
 
     return NextResponse.json({
       success: true,
