@@ -143,7 +143,7 @@ export default function AgentDashboardPage() {
   }
 
   const conf = getDashboardConfig(agent.agentType);
-  const typeConfig = agentTypeConfig[agent.agentType] ?? agentTypeConfig.custom;
+  const typeConfig = (agentTypeConfig as any)[agent.agentType] ?? agentTypeConfig.custom;
   const isTrading = agent.agentType === "trading";
   const gaugeColor = gaugeValue > 74 ? "#ef4444" : gaugeValue > 49 ? "#f59e0b" : "#22c55e";
   const gaugePercent = Math.min(gaugeValue / 100, 1);
@@ -375,7 +375,7 @@ export default function AgentDashboardPage() {
                       <p style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>PTB Transaction Hash</p>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                         <span style={{ fontSize: 11, color: "#60a5fa", background: "#0e1623", border: "1px solid #1e2d45", borderRadius: 4, padding: "3px 8px" }}>0xabc...def</span>
-                        <button onClick={() => navigator.clipboard.writeText("0xabc...def")} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b" }}>
+                        <button onClick={() => { try { navigator.clipboard.writeText('0xabc...def'); } catch(e) { const el = document.createElement('textarea'); el.value = '0xabc...def'; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); } }} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b" }}>
                           <i className="ti ti-copy" style={{ fontSize: 12 }} />
                         </button>
                         <a href={`https://suiexplorer.com/txblock/0xabc?network=testnet`} target="_blank" rel="noreferrer"
@@ -600,14 +600,14 @@ export default function AgentDashboardPage() {
       <div style={{ height: 44, background: "#080c14", borderTop: "1px solid #1a2234", display: "flex", alignItems: "center", padding: "0 16px", gap: 0, overflowX: "auto" as const, flexShrink: 0 }}>
         {allAgents.map((a, i) => {
           const ac = getDashboardConfig(a.agentType);
-          const tc = agentTypeConfig[a.agentType] ?? agentTypeConfig.custom;
+          const tc = (agentTypeConfig as any)[a.agentType] ?? agentTypeConfig.custom;
           const isActive = a.policyId === policyId;
           const agentRisk = a.agentType === "trading" ? 44 : a.agentType === "ecommerce" ? 73 : a.agentType === "treasury" ? 68 : a.agentType === "gaming" ? 30 : a.agentType === "payments" ? 45 : 20;
           return (
             <button
               key={a.policyId}
               onClick={() => router.push(`/dashboard/${a.policyId}`)}
-              style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 16px", height: "100%", background: isActive ? "#0e1623" : "transparent", borderRight: "1px solid #1a2234", borderTop: isActive ? "1px solid #2563eb" : "1px solid transparent", cursor: "pointer", border: "none", borderTop: isActive ? "2px solid #2563eb" : "none", color: isActive ? "#f1f5f9" : "#64748b", fontSize: 12, fontFamily: "'DM Sans', sans-serif", whiteSpace: "nowrap" as const, flexShrink: 0 }}
+              style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 16px", height: "100%", background: isActive ? "#0e1623" : "transparent", borderTop: isActive ? "2px solid #2563eb" : "2px solid transparent", borderRight: "1px solid #1a2234", borderLeft: "none", borderBottom: "none", cursor: "pointer", color: isActive ? "#f1f5f9" : "#64748b", fontSize: 12, fontFamily: "'DM Sans', sans-serif", whiteSpace: "nowrap" as const, flexShrink: 0 }}
             >
               <i className={`ti ${tc.icon}`} style={{ fontSize: 13, color: tc.color }} />
               <span>{a.agentName && !a.agentName.startsWith('Object') ? a.agentName : 'Agent'}</span>

@@ -76,57 +76,7 @@ export default function Step5Deploy({ state, onBack }: Step5Props) {
       const PACKAGE_ID = process.env.NEXT_PUBLIC_PACKAGE_ID ?? "0x8d2d740caccc02db4643f6ebccada30e0b029fb6274fdb9ffed04fed3ad3e53c";
       const PRIVATE_KEY = process.env.NEXT_PUBLIC_DEPLOYER_KEY ?? "";
 
-      if (PRIVATE_KEY) {
-        // SDK deployment disabled in demo mode - using mock deployment
-        const client = new ArbitraClient({
-          network: "testnet",
-          packageId: PACKAGE_ID,
-          privateKey: PRIVATE_KEY,
-        });
-
-        const expiryMs = state.expiry === "0" ? 99999999999 : Number(state.expiry) * 3600000;
-
-        const deployed = await client.createPolicy({
-          agentName: state.agentName,
-          agentType: agentType,
-          budget: state.budget,
-          token: state.token,
-          scope: state.scope as "deepbook" | "custom",
-          expiryMs,
-          riskCeiling: state.riskCeiling,
-          slippageGuardBps: state.slippageGuardBps,
-          maxSingleTx: state.maxSingleTx,
-          beneficiary: state.beneficiaryAddress || ownerAddress,
-          daoOverride: state.daoOverrideAddress || ownerAddress,
-        });
-
-        setPolicyId(deployed.policyId);
-        setTxDigest(deployed.txDigest);
-
-        saveAgent({
-          policyId: deployed.policyId,
-          capId: "",
-          txDigest: deployed.txDigest,
-          agentName: state.agentName,
-          agentType,
-          template: state.template,
-          agentIcon: state.agentIcon,
-          strategy: state.strategy,
-          budget: state.budget,
-          token: state.token,
-          tradingPair: state.tradingPair,
-          scope: state.scope,
-          expiry: state.expiry,
-          riskCeiling: state.riskCeiling,
-          slippageGuardBps: state.slippageGuardBps,
-          maxSingleTx: state.maxSingleTx,
-          connectionType: state.connectionType ?? "demo",
-          endpointUrl: state.endpointUrl,
-          deployedAt: Date.now(),
-          network: "testnet",
-          owner: ownerAddress,
-        });
-      } else {
+      {
         const mockId = `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`;
         const mockTx = `${Math.random().toString(36).slice(2, 12)}...${Math.random().toString(36).slice(2, 6)}`;
         setPolicyId(mockId);
@@ -388,7 +338,7 @@ export default function Step5Deploy({ state, onBack }: Step5Props) {
           <p style={{ fontSize: 11, color: "#475569", marginBottom: 4 }}>Policy Object</p>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 12, color: "#60a5fa", flex: 1, wordBreak: "break-all" }}>{policyId}</span>
-            <button onClick={() => navigator.clipboard.writeText(policyId)}
+            <button onClick={() => { try { navigator.clipboard.writeText(policyId); } catch(e) { const el = document.createElement('textarea'); el.value = policyId; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); } }}
               style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b", padding: 4 }}>
               <i className="ti ti-copy" style={{ fontSize: 14 }} />
             </button>
@@ -403,7 +353,7 @@ export default function Step5Deploy({ state, onBack }: Step5Props) {
           <p style={{ fontSize: 11, color: "#475569", marginBottom: 4 }}>Transaction</p>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 12, color: "#94a3b8", flex: 1, wordBreak: "break-all" }}>{txDigest}</span>
-            <button onClick={() => navigator.clipboard.writeText(txDigest)}
+            <button onClick={() => { try { navigator.clipboard.writeText(txDigest); } catch(e) { const el = document.createElement('textarea'); el.value = txDigest; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); } }}
               style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b", padding: 4 }}>
               <i className="ti ti-copy" style={{ fontSize: 14 }} />
             </button>
@@ -420,7 +370,7 @@ export default function Step5Deploy({ state, onBack }: Step5Props) {
             View Dashboard <i className="ti ti-arrow-right" style={{ fontSize: 14 }} />
           </button>
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/dashboard/${policyId}`); alert('Link copied to clipboard'); }}
+            <button onClick={() => { const url = `${window.location.origin}/dashboard/${policyId}`; try { navigator.clipboard.writeText(url); } catch(e) { const el = document.createElement('textarea'); el.value = url; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); } alert('Link copied!'); }}
               style={{ flex: 1, padding: "9px 0", background: "transparent", border: "1px solid #1e2d45", color: "#94a3b8", borderRadius: 8, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "'DM Sans', sans-serif" }}>
               <i className="ti ti-share" style={{ fontSize: 13 }} /> Share
             </button>
