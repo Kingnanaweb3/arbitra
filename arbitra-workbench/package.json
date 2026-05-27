@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@arbitra/sdk": "file:../arbitra-sdk",
     "@mysten/dapp-kit": "^1.0.6",
     "@mysten/sui": "^2.5.0",
     "@mysten/zklogin": "^0.8.1",

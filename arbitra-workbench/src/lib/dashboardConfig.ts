@@ -289,63 +289,6 @@ export interface MockLogEntry {
   policyVersion: string;
 }
 
-export function getMockLogs(agentType: string, token: string): MockLogEntry[] {
-  const logs: Record<string, MockLogEntry[]> = {
-    trading: [
-      { time: "12:34:01", action: "BUY", amount: 12, token, target: "SUI/USDC", status: "approved", policyVersion: "v1.0" },
-      { time: "12:41:08", action: "BUY", amount: 12, token, target: "SUI/USDC", status: "approved", policyVersion: "v1.0" },
-      { time: "12:48:15", action: "BUY", amount: 12, token, target: "SUI/USDC", status: "approved", policyVersion: "v1.0" },
-      { time: "12:55:22", action: "PAUSED", amount: 0, token, target: "Risk spike", status: "paused", reason: "Risk score 90 > ceiling 75", policyVersion: "v1.0" },
-      { time: "13:02:30", action: "RESUMED", amount: 0, token, target: "Risk normalized", status: "approved", reason: "Risk score 61 < ceiling 75", policyVersion: "v1.0" },
-      { time: "13:09:37", action: "BUY", amount: 12, token, target: "SUI/USDC", status: "approved", policyVersion: "v1.0" },
-    ],
-    ecommerce: [
-      { time: "10:14:02", action: "PURCHASE", amount: 45, token, target: "vendor-one.sui", status: "approved", receipt: "#A1B2", policyVersion: "v1.0" },
-      { time: "10:31:17", action: "PURCHASE", amount: 28, token, target: "vendor-two.sui", status: "approved", receipt: "#C3D4", policyVersion: "v1.0" },
-      { time: "10:45:00", action: "WARNING", amount: 0, token, target: "73% of weekly limit used", status: "warning", policyVersion: "v1.0" },
-      { time: "11:02:44", action: "REJECTED", amount: 0, token, target: "vendor-four.sui", status: "rejected", reason: "Not on approved vendor list", policyVersion: "v1.0" },
-      { time: "11:15:30", action: "REJECTED", amount: 65, token, target: "vendor-one.sui", status: "rejected", reason: "Exceeds max transaction limit", policyVersion: "v1.0" },
-      { time: "11:30:00", action: "PURCHASE", amount: 32, token, target: "vendor-one.sui", status: "approved", receipt: "#E5F6", policyVersion: "v1.0" },
-    ],
-    treasury: [
-      { time: "09:00:00", action: "GRANT", amount: 500, token, target: "0x7b57...3e87", status: "approved", policyVersion: "v1.0" },
-      { time: "09:30:00", action: "GRANT", amount: 250, token, target: "0x8c92...4f21", status: "approved", policyVersion: "v1.0" },
-      { time: "10:00:00", action: "REJECTED", amount: 1500, token, target: "0x9d31...2a18", status: "rejected", reason: "Exceeds max single grant", policyVersion: "v1.0" },
-      { time: "10:30:00", action: "TRANSFER", amount: 100, token, target: "0x2a18...9d31", status: "approved", policyVersion: "v1.0" },
-      { time: "11:00:00", action: "GRANT", amount: 750, token, target: "0x4f21...8c92", status: "approved", policyVersion: "v1.0" },
-    ],
-    payments: [
-      { time: "08:00:00", action: "PAY", amount: 200, token, target: "payee-one.sui", status: "approved", policyVersion: "v1.0" },
-      { time: "08:30:00", action: "SUBSCRIBE", amount: 50, token, target: "service-one.sui", status: "approved", policyVersion: "v1.0" },
-      { time: "09:00:00", action: "PAY", amount: 150, token, target: "payee-two.sui", status: "approved", policyVersion: "v1.0" },
-      { time: "09:30:00", action: "REJECTED", amount: 500, token, target: "payee-three.sui", status: "rejected", reason: "Not on approved payees list", policyVersion: "v1.0" },
-      { time: "10:00:00", action: "INVOICE", amount: 300, token, target: "vendor.sui", status: "approved", policyVersion: "v1.0" },
-    ],
-    gaming: [
-      { time: "14:00:00", action: "BID", amount: 25, token, target: "NFT #1234", status: "approved", policyVersion: "v1.0" },
-      { time: "14:15:00", action: "MINT", amount: 10, token, target: "Collection A", status: "approved", policyVersion: "v1.0" },
-      { time: "14:30:00", action: "REJECTED", amount: 200, token, target: "NFT #5678", status: "rejected", reason: "Exceeds max single bid", policyVersion: "v1.0" },
-      { time: "14:45:00", action: "BID", amount: 30, token, target: "NFT #9012", status: "approved", policyVersion: "v1.0" },
-      { time: "15:00:00", action: "MINT", amount: 15, token, target: "Collection B", status: "approved", policyVersion: "v1.0" },
-    ],
-    custom: [
-      { time: "10:00:00", action: "APPROVE", amount: 100, token, target: "0x7b57...3e87", status: "approved", policyVersion: "v1.0" },
-      { time: "10:30:00", action: "TRANSFER", amount: 50, token, target: "0x8c92...4f21", status: "approved", policyVersion: "v1.0" },
-      { time: "11:00:00", action: "REJECTED", amount: 200, token, target: "0x9d31...2a18", status: "rejected", reason: "Exceeds max single tx", policyVersion: "v1.0" },
-      { time: "11:30:00", action: "SKIP", amount: 0, token, target: "Risk elevated", status: "system", policyVersion: "v1.0" },
-    ],
-  };
-  return logs[agentType] ?? logs.custom;
-}
 
-export function getMockStats(agentType: string, budget: number, token: string) {
-  const stats: Record<string, Record<string, any>> = {
-    trading: { approved: 4, rejected: 1, avgSize: `12 ${token}`, totalVolume: `48 ${token}`, budgetUsed: `48 ${token}`, riskCeiling: "75 / 100", budgetUsedPercent: 24, currentRisk: 44 },
-    ecommerce: { approved: 8, rejected: 2, avgSize: `45 ${token}`, largestSpend: `65 ${token}`, totalSaved: `65 ${token}`, budgetUsed: `365 ${token}`, budgetUsedPercent: 73, spendVelocity: "Normal", vendorCompliance: "100%", receiptCoverage: "100%" },
-    treasury: { approved: 5, rejected: 1, avgSize: `500 ${token}`, totalVolume: `1600 ${token}`, budgetUsed: `1600 ${token}`, budgetRemaining: `${budget - 1600} ${token}`, budgetUsedPercent: 68 },
-    payments: { approved: 5, rejected: 1, avgSize: `200 ${token}`, subscriptionsActive: 1, totalVolume: `700 ${token}`, budgetRemaining: `${budget - 700} ${token}`, budgetUsedPercent: 45 },
-    gaming: { approved: 4, rejected: 1, avgSize: `20 ${token}`, largestSpend: `30 ${token}`, totalVolume: `80 ${token}`, budgetRemaining: `${budget - 80} ${token}`, budgetUsedPercent: 30 },
-    custom: { approved: 3, rejected: 1, avgSize: `75 ${token}`, totalVolume: `150 ${token}`, budgetUsed: `150 ${token}`, budgetRemaining: `${budget - 150} ${token}`, budgetUsedPercent: 15 },
-  };
-  return stats[agentType] ?? stats.custom;
-}
+
+

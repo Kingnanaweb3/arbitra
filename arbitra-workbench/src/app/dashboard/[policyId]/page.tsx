@@ -4,7 +4,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { getAgent, getAgents, DeployedAgent } from "@/lib/agentStore";
-import { getDashboardConfig, getMockLogs, getMockStats, MockLogEntry } from "@/lib/dashboardConfig";
+import { getDashboardConfig, MockLogEntry } from "@/lib/dashboardConfig";
+import { fetchOnchainLogs, fetchOnchainStats } from "@/lib/onchainLogs";
 import UpdatePolicyModal from "@/components/dashboard/UpdatePolicyModal";
 import { agentTypeConfig } from "@/lib/wizardState";
 
@@ -56,16 +57,19 @@ export default function AgentDashboardPage() {
     setAllAgents(all);
     if (found) {
       const agentType = found.agentType;
-      const mockLogs = getMockLogs(agentType, found.token);
-      const seen = new Set();
-      const unique = mockLogs.filter(l => {
-        const key = l.time + l.action + l.amount;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
+      // Fetch real on-chain logs
+      fetchOnchainLogs(found.policyId, found.token).then(onchainLogs => {
+        if (onchainLogs.length > 0) {
+          setLogs(onchainLogs);
+        }
       });
-      setLogs(unique);
-      setStats(getMockStats(agentType, found.budget, found.token));
+      // Fetch real on-chain stats
+      fetchOnchainStats(found.policyId, found.token, found.budget).then(onchainStats => {
+        if (onchainStats) {
+          setStats(onchainStats);
+          setGaugeValue(Math.min(onchainStats.budgetUsedPercent + 20, 95));
+        }
+      });
       setGaugeValue(agentType === "trading" ? 44 : 72);
     }
   }, [policyId]);
