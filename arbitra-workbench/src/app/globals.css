@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #0b0f18;
+  --bg-secondary: #080c14;
+  --bg-card: #0e1623;
+  --bg-card-hover: #111e30;
+  --border-primary: #1a2234;
+  --border-card: #1e2d45;
+  --border-card-hover: #2a3f60;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+  --text-hint: #334155;
+  --blue-primary: #2563eb;
+  --blue-light: #60a5fa;
+  --blue-border: #2a4a7a;
+  --amber-primary: #d97706;
+  --amber-light: #f59e0b;
+  --green-active: #22c55e;
+  --red-danger: #ef4444;
+  --red-dark: #b91c1c;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(37, 99, 235, 0.3);
+  color: #fff;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--border-card); border-radius: 2px; }
+
+body {
+  background-color: #0b0f18 !important;
+  color: #f1f5f9 !important;
+}
+
+.sidebar-bg { background-color: #080c14; }
+.card-bg { background-color: #0e1623; }
+@import "@mysten/dapp-kit/dist/index.css";
