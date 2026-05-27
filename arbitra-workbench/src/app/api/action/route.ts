@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CoreClient as SuiClient } from "@mysten/sui/client";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
+import { fromBase64 } from "@mysten/sui/utils";
 import { Transaction } from "@mysten/sui/transactions";
 
 const getFullnodeUrl = (network: string) => `https://fullnode.${network}.sui.io:443`;
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const keypair = Ed25519Keypair.fromSecretKey(PRIVATE_KEY);
+    const keypair = Ed25519Keypair.fromSecretKey(fromBase64(PRIVATE_KEY));
     const tx = new Transaction();
 
     // Convert amount to contract units (multiply by 1,000,000)
