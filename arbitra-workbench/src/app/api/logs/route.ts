@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { CoreClient as SuiClient } from "@mysten/sui/client";
 
 const getFullnodeUrl = (network: string) => `https://fullnode.${network}.sui.io:443`;
-const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
+const suiClient = new SuiClient({ url: getFullnodeUrl("testnet"), network: "testnet" });
 const PACKAGE_ID = process.env.NEXT_PUBLIC_PACKAGE_ID ?? "0x8d2d740caccc02db4643f6ebccada30e0b029fb6274fdb9ffed04fed3ad3e53c";
 
 export async function GET(req: NextRequest) {

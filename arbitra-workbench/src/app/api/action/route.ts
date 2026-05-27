@@ -5,7 +5,7 @@ import { fromBase64 } from "@mysten/sui/utils";
 import { Transaction } from "@mysten/sui/transactions";
 
 const getFullnodeUrl = (network: string) => `https://fullnode.${network}.sui.io:443`;
-const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
+const suiClient = new SuiClient({ url: getFullnodeUrl("testnet"), network: "testnet" });
 const PACKAGE_ID = process.env.NEXT_PUBLIC_PACKAGE_ID ?? "0x8d2d740caccc02db4643f6ebccada30e0b029fb6274fdb9ffed04fed3ad3e53c";
 const PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY ?? "";
 const CLOCK_ID = "0x6";

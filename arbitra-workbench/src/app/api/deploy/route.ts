@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     const { Ed25519Keypair } = await import("@mysten/sui/keypairs/ed25519");
     const { Transaction } = await import("@mysten/sui/transactions");
 
-    const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
+    const suiClient = new SuiClient({ url: getFullnodeUrl("testnet"), network: "testnet" });
     const keypair = Ed25519Keypair.fromSecretKey(fromBase64(PRIVATE_KEY));
 
     const expiryMs = expiry === "0" ? 99999999999 : Number(expiry) * 3600000;
