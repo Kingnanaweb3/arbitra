@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { CoreClient as SuiClient } from "@mysten/sui/client";
-import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
-import { fromBase64 } from "@mysten/sui/utils";
-import { Transaction } from "@mysten/sui/transactions";
+import { SuiClient, getFullnodeUrl } from "@mysten/sui.js/client";
+import { Ed25519Keypair } from "@mysten/sui.js/keypairs/ed25519";
+import { fromB64 } from "@mysten/sui.js/utils";
+import { TransactionBlock } from "@mysten/sui.js/transactions";
 
-const getFullnodeUrl = (network: string) => `https://fullnode.${network}.sui.io:443`;
-const suiClient = new SuiClient({ url: getFullnodeUrl("testnet"), network: "testnet" });
+const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
 const PACKAGE_ID = process.env.NEXT_PUBLIC_PACKAGE_ID ?? "0x8d2d740caccc02db4643f6ebccada30e0b029fb6274fdb9ffed04fed3ad3e53c";
 const PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY ?? "";
 const CLOCK_ID = "0x6";
@@ -36,8 +35,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const keypair = Ed25519Keypair.fromSecretKey(fromBase64(PRIVATE_KEY));
-    const tx = new Transaction();
+    const keypair = Ed25519Keypair.fromSecretKey(fromB64(PRIVATE_KEY));
+    const tx = new TransactionBlock();
 
     // Convert amount to contract units (multiply by 1,000,000)
     const amountInUnits = Math.round(amount * 1_000_000);
@@ -57,8 +56,8 @@ export async function POST(req: NextRequest) {
       ],
     });
 
-    const result = await suiClient.signAndExecuteTransaction({
-      transaction: tx,
+    const result = await suiClient.signAndExecuteTransactionBlock({
+      transactionBlock: tx,
       signer: keypair,
       options: { showEffects: true },
     });
