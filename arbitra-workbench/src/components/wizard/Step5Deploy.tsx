@@ -73,8 +73,31 @@ export default function Step5Deploy({ state, onBack }: Step5Props) {
 
       updateStep(3, "active");
 
-      const PACKAGE_ID = process.env.NEXT_PUBLIC_PACKAGE_ID ?? "0x8d2d740caccc02db4643f6ebccada30e0b029fb6274fdb9ffed04fed3ad3e53c";
-      const PRIVATE_KEY = process.env.NEXT_PUBLIC_DEPLOYER_KEY ?? "";
+      const deployResponse = await fetch("/api/deploy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          agentName: state.agentName,
+          agentType,
+          budget: state.budget,
+          token: state.token,
+          scope: state.scope,
+          expiry: state.expiry,
+          riskCeiling: state.riskCeiling,
+          slippageGuardBps: state.slippageGuardBps,
+          maxSingleTx: state.maxSingleTx,
+          beneficiary: state.beneficiaryAddress || ownerAddress,
+          daoOverride: state.daoOverrideAddress || ownerAddress,
+        }),
+      });
+
+      const deployResult = await deployResponse.json();
+      if (!deployResult.success) throw new Error(deployResult.error ?? "Deployment failed");
+
+      const finalPolicyId = deployResult.policyId;
+      const finalTxDigest = deployResult.txDigest;
+      setPolicyId(finalPolicyId);
+      setTxDigest(finalTxDigest);
 
       {
         saveAgent({
