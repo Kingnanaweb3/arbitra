@@ -43,15 +43,16 @@ export async function POST(req: NextRequest) {
     const scopeCheck = scope === "deepbook" ? SCOPE_DEEPBOOK : SCOPE_CUSTOM;
 
     // Call validate_action on-chain — this enforces policy and emits events
+    const actionBytes = Array.from(new TextEncoder().encode(action));
     tx.moveCall({
       target: `${PACKAGE_ID}::policy_object::validate_action`,
       arguments: [
         tx.object(policyId),
-        tx.pure.vector("u8", Array.from(new TextEncoder().encode(action))),
-        tx.pure.u64(amountInUnits),
-        tx.pure.u8(scopeCheck),
-        tx.pure.u64(Math.round(riskScore)),
-        tx.pure.u64(slippageBps ?? 0),
+        tx.pure(actionBytes, "vector<u8>"),
+        tx.pure(amountInUnits, "u64"),
+        tx.pure(scopeCheck, "u8"),
+        tx.pure(Math.round(riskScore), "u64"),
+        tx.pure(slippageBps ?? 0, "u64"),
         tx.object(CLOCK_ID),
       ],
     });
