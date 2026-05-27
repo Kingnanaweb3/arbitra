@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CoreClient as SuiClient } from "@mysten/sui/client";
-const getFullnodeUrl = (network: string) => `https://fullnode.${network}.sui.io:443`;
 
+const getFullnodeUrl = (network: string) => `https://fullnode.${network}.sui.io:443`;
 const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
 const PACKAGE_ID = process.env.NEXT_PUBLIC_PACKAGE_ID ?? "0x8d2d740caccc02db4643f6ebccada30e0b029fb6274fdb9ffed04fed3ad3e53c";
 
@@ -17,19 +17,32 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ logs: [], stats: null });
     }
 
-    const events = await suiClient.queryEvents({
+    // Query ActionApproved events
+    const approvedEvents = await suiClient.queryEvents({
       query: {
-        MoveEventType: `${PACKAGE_ID}::activity_log::ActionLogged`,
+        MoveEventType: `${PACKAGE_ID}::policy_object::ActionApproved`,
       },
       limit: 50,
       order: "descending",
     });
 
-    const filtered = (events.data ?? []).filter((e: any) =>
-      e.parsedJson?.policy_id === policyId
-    );
+    // Query ActionRejected events  
+    const rejectedEvents = await suiClient.queryEvents({
+      query: {
+        MoveEventType: `${PACKAGE_ID}::policy_object::ActionRejected`,
+      },
+      limit: 50,
+      order: "descending",
+    });
 
-    const logs = filtered.map((e: any) => {
+    const allEvents = [
+      ...(approvedEvents.data ?? []).map((e: any) => ({ ...e, approved: true })),
+      ...(rejectedEvents.data ?? []).map((e: any) => ({ ...e, approved: false })),
+    ]
+      .filter((e: any) => e.parsedJson?.policy_id === policyId)
+      .sort((a: any, b: any) => Number(b.timestampMs) - Number(a.timestampMs));
+
+    const logs = allEvents.map((e: any) => {
       const j = e.parsedJson;
       const timestamp = Number(e.timestampMs ?? Date.now());
       const date = new Date(timestamp);
@@ -39,15 +52,20 @@ export async function GET(req: NextRequest) {
         minute: "2-digit",
         second: "2-digit",
       });
+
+      const actionLabel = j.action_type
+        ? new TextDecoder().decode(new Uint8Array(j.action_type))
+        : "ACTION";
+
       return {
         time,
-        action: j.action_type ?? "ACTION",
-        amount: Number(j.amount ?? 0) / 1000000,
+        action: actionLabel,
+        amount: Number(j.amount ?? 0) / 1_000_000,
         token,
-        target: j.target ?? "",
-        status: j.approved ? "approved" : "rejected",
-        reason: j.reason ?? "",
-        policyVersion: `v${j.policy_version ?? "1.0"}`,
+        target: j.policy_id ?? "",
+        status: e.approved ? "approved" : "rejected",
+        reason: "",
+        policyVersion: "v1.0",
         txHash: e.id?.txDigest ?? "",
       };
     });
@@ -74,6 +92,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ logs });
+
   } catch (error: any) {
     console.error("[Logs API] Error:", error.message);
     return NextResponse.json({ logs: [], stats: null });
