@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
         tx.pure(amountInUnits, "u64"),
         tx.pure(scopeCheck, "u8"),
         tx.pure(Math.round(riskScore), "u64"),
-        tx.pure(slippageBps ?? 0, "u64"),
+        tx.pure(Math.round(slippageBps ?? 0), "u64"),
         tx.object(CLOCK_ID),
       ],
     });
